@@ -17,6 +17,7 @@ package main
 import (
 	"flag"
 	oldlog "log"
+	"os"
 
 	"github.com/coreos/pkg/capnslog"
 )
@@ -53,5 +54,17 @@ func main() {
 	// We also have control over the built-in "log" package.
 	capnslog.SetGlobalLogLevel(logLevel)
 	oldlog.Println("You're still glowin', you're still crowin', you're still lookin' strong")
+	// "log" can be also fully integrated as Formatter, while sill using it's format flags
+	capnslog.SetFormatter(capnslog.NewLogFormatter(os.Stderr, "", oldlog.LstdFlags | oldlog.Lshortfile))
+	log.Error("I feel the room swayin'...")
+	log.Errorf("...for the band's playin'")
+
+	// We can mimic glog's output
+	// (Caller via direct vs wrapped call to internalLog)
+	capnslog.SetFormatter(capnslog.NewGlogFormatter(os.Stderr))
+	log.Error("I hear the ice tinkle")
+	log.Errorf("See the lights twinkle")
+
+	capnslog.SetFormatter(capnslog.NewDefaultFormatter(os.Stderr))
 	log.Fatalf("Dolly'll never go away again")
 }
