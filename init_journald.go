@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// +build !windows,!journald
+// +build !windows,journald
 
 package capnslog
 
 import (
+	"io"
 	"os"
+	"syscall"
 )
 
 // Here's where the opinionation comes in. We need some sensible defaults,
@@ -31,6 +33,17 @@ func init() {
 	initHijack()
 
 	// Go `log` pacakge uses os.Stderr.
-	SetFormatter(NewPrettyFormatter(os.Stderr, false))
+	SetFormatter(NewDefaultFormatter(os.Stderr))
 	SetGlobalLogLevel(INFO)
+}
+
+func NewDefaultFormatter(out io.Writer) Formatter {
+	if syscall.Getppid() == 1 {
+		// We're running under init, which may be systemd.
+		f, err := NewJournaldFormatter()
+		if err == nil {
+			return f
+		}
+	}
+	return NewPrettyFormatter(out, false)
 }
