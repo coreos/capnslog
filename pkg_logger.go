@@ -45,12 +45,16 @@ func (p *PackageLogger) LevelAt(l LogLevel) bool {
 
 // Log a formatted string at any level between ERROR and TRACE
 func (p *PackageLogger) Logf(l LogLevel, format string, args ...interface{}) {
-	p.internalLog(calldepth, l, fmt.Sprintf(format, args...))
+	p.logf(calldepth, l, format, args...)
 }
 
 // Log a message at any level between ERROR and TRACE
 func (p *PackageLogger) Log(l LogLevel, args ...interface{}) {
 	p.internalLog(calldepth, l, fmt.Sprint(args...))
+}
+
+func (p *PackageLogger) logf(depth int, l LogLevel, format string, args ...interface{}) {
+	p.internalLog(depth + 1, l, fmt.Sprintf(format, args...))
 }
 
 // log stdlib compatibility
@@ -60,7 +64,7 @@ func (p *PackageLogger) Println(args ...interface{}) {
 }
 
 func (p *PackageLogger) Printf(format string, args ...interface{}) {
-	p.Logf(INFO, format, args...)
+	p.logf(calldepth, INFO, format, args...)
 }
 
 func (p *PackageLogger) Print(args ...interface{}) {
@@ -82,7 +86,7 @@ func (p *PackageLogger) Panic(args ...interface{}) {
 }
 
 func (p *PackageLogger) Fatalf(format string, args ...interface{}) {
-	p.Logf(CRITICAL, format, args...)
+	p.logf(calldepth, CRITICAL, format, args...)
 	os.Exit(1)
 }
 
@@ -101,7 +105,7 @@ func (p *PackageLogger) Fatalln(args ...interface{}) {
 // Error Functions
 
 func (p *PackageLogger) Errorf(format string, args ...interface{}) {
-	p.Logf(ERROR, format, args...)
+	p.logf(calldepth, ERROR, format, args...)
 }
 
 func (p *PackageLogger) Error(entries ...interface{}) {
@@ -111,7 +115,7 @@ func (p *PackageLogger) Error(entries ...interface{}) {
 // Warning Functions
 
 func (p *PackageLogger) Warningf(format string, args ...interface{}) {
-	p.Logf(WARNING, format, args...)
+	p.logf(calldepth, WARNING, format, args...)
 }
 
 func (p *PackageLogger) Warning(entries ...interface{}) {
@@ -121,7 +125,7 @@ func (p *PackageLogger) Warning(entries ...interface{}) {
 // Notice Functions
 
 func (p *PackageLogger) Noticef(format string, args ...interface{}) {
-	p.Logf(NOTICE, format, args...)
+	p.logf(calldepth, NOTICE, format, args...)
 }
 
 func (p *PackageLogger) Notice(entries ...interface{}) {
@@ -131,7 +135,7 @@ func (p *PackageLogger) Notice(entries ...interface{}) {
 // Info Functions
 
 func (p *PackageLogger) Infof(format string, args ...interface{}) {
-	p.Logf(INFO, format, args...)
+	p.logf(calldepth, INFO, format, args...)
 }
 
 func (p *PackageLogger) Info(entries ...interface{}) {
@@ -144,7 +148,7 @@ func (p *PackageLogger) Debugf(format string, args ...interface{}) {
 	if p.level < DEBUG {
 		return
 	}
-	p.Logf(DEBUG, format, args...)
+	p.logf(calldepth, DEBUG, format, args...)
 }
 
 func (p *PackageLogger) Debug(entries ...interface{}) {
@@ -160,7 +164,7 @@ func (p *PackageLogger) Tracef(format string, args ...interface{}) {
 	if p.level < TRACE {
 		return
 	}
-	p.Logf(TRACE, format, args...)
+	p.logf(calldepth, TRACE, format, args...)
 }
 
 func (p *PackageLogger) Trace(entries ...interface{}) {
