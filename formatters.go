@@ -39,11 +39,11 @@ type StringFormatter struct {
 	w *bufio.Writer
 }
 
-func (s *StringFormatter) Format(pkg string, l LogLevel, i int, entries ...interface{}) {
+func (s *StringFormatter) Format(pkg string, l LogLevel, depth int, entries ...interface{}) {
 	now := time.Now().UTC()
 	s.w.WriteString(now.Format(time.RFC3339))
 	s.w.WriteByte(' ')
-	writeEntries(s.w, pkg, l, i, entries...)
+	writeEntries(s.w, pkg, l, depth+1, entries...)
 	s.Flush()
 }
 
@@ -98,7 +98,7 @@ func (c *PrettyFormatter) Format(pkg string, l LogLevel, depth int, entries ...i
 		c.w.WriteString(fmt.Sprintf(" [%s:%d]", file, line))
 	}
 	c.w.WriteString(fmt.Sprint(" ", l.Char(), " | "))
-	writeEntries(c.w, pkg, l, depth, entries...)
+	writeEntries(c.w, pkg, l, depth+1, entries...)
 	c.Flush()
 }
 
@@ -122,13 +122,13 @@ func NewLogFormatter(w io.Writer, prefix string, flag int) Formatter {
 }
 
 // Format builds a log message for the LogFormatter. The LogLevel is ignored.
-func (lf *LogFormatter) Format(pkg string, _ LogLevel, _ int, entries ...interface{}) {
+func (lf *LogFormatter) Format(pkg string, _ LogLevel, depth int, entries ...interface{}) {
 	str := fmt.Sprint(entries...)
 	prefix := lf.prefix
 	if pkg != "" {
 		prefix = fmt.Sprintf("%s%s: ", prefix, pkg)
 	}
-	lf.logger.Output(5, fmt.Sprintf("%s%v", prefix, str)) // call depth is 5
+	lf.logger.Output(depth+1, fmt.Sprintf("%s%v", prefix, str)) // call depth should be calculated
 }
 
 // Flush is included so that the interface is complete, but is a no-op.
