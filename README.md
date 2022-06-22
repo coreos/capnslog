@@ -1,3 +1,11 @@
+# :warning: Archived :warning:
+
+:arrow_right: **Use
+[`github.com/coreos/pkg/capnslog`](https://github.com/coreos/pkg/tree/main/capnslog)
+instead.**
+
+---
+
 # capnslog, the CoreOS logging package
 
 There are far too many logging packages out there, with varying degrees of licenses, far too many features (colorization, all sorts of log frameworks) or are just a pain to use (lack of `Fatalln()`?).
